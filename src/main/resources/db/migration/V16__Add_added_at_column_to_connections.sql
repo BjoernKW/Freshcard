@@ -1,0 +1,2 @@
+ALTER TABLE contacts_users
+  ADD COLUMN connection_added_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP;

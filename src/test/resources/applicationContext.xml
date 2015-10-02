@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd">
+
+    <bean id="databaseProperties"
+          class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="locations">
+            <list>
+                <value>classpath:databaseDriver.properties</value>
+                <value>classpath:queries.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="mailerProperties"
+          class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="locations">
+            <list>
+                <value>classpath:mailer.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="fullContactProperties"
+          class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="locations">
+            <list>
+                <value>classpath:fullContact.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="authenticationProperties"
+          class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="locations">
+            <list>
+                <value>classpath:authentication.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <jdbc:embedded-database id="dataSource">
+        <jdbc:script location="classpath:sql/Freshcard.test.sql"/>
+        <jdbc:script location="classpath:sql/Freshcard_data.test.sql"/>
+    </jdbc:embedded-database>
+
+    <bean id="contactDAO" class="com.freshcard.backend.model.dao.impl.JdbcContactDAO">
+        <property name="dataSource" ref="dataSource" />
+        <property name="passwordEncoder" ref="passwordEncoder" />
+        <property name="applicationID" value="" />
+        <property name="apiKey" value="" />
+        <property name="indexName" value="" />
+    </bean>
+
+    <bean id="organizationDAO" class="com.freshcard.backend.model.dao.impl.JdbcOrganizationDAO">
+        <property name="dataSource" ref="dataSource" />
+        <property name="passwordEncoder" ref="passwordEncoder" />
+    </bean>
+
+    <bean id="userDAO" class="com.freshcard.backend.model.dao.impl.JdbcUserDAO">
+        <property name="dataSource" ref="dataSource" />
+        <property name="passwordEncoder" ref="passwordEncoder" />
+        <property name="applicationID" value="" />
+        <property name="apiKey" value="" />
+        <property name="apiKeySearch" value="" />
+        <property name="indexName" value="test_freshcard_contacts" />
+    </bean>
+
+    <bean id="oAuthUserDAO" class="com.freshcard.backend.model.dao.impl.JdbcOAuthUserDAO">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <bean id="roleDAO" class="com.freshcard.backend.model.dao.impl.JdbcRoleDAO">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="100000000"/>
+    </bean>
+
+    <bean id="messageSource"
+          class="org.springframework.context.support.ResourceBundleMessageSource">
+        <property name="basename" value="messages" />
+        <property name="defaultEncoding" value="UTF-8" />
+    </bean>
+
+    <bean id="mailer" class="com.freshcard.backend.util.Mailer">
+        <property name="mailerProperties" ref="mailerProperties" />
+        <property name="messageSource" ref="messageSource" />
+    </bean>
+
+    <bean id="uploadHelper" class="com.freshcard.backend.util.UploadHelper" />
+
+    <bean id="userManagementHelper" class="com.freshcard.backend.util.UserManagementHelper">
+        <property name="userDAO" ref="userDAO" />
+        <property name="contactDAO" ref="contactDAO" />
+        <property name="organizationDAO" ref="organizationDAO" />
+        <property name="roleDAO" ref="roleDAO" />
+        <property name="isTestRun" value="true" />
+        <property name="fullContactProperties" ref="fullContactProperties" />
+    </bean>
+
+    <bean class="com.freshcard.backend.util.SearchUtil" id="searchUtil" init-method="initialize">
+        <property name="contactDAO" ref="contactDAO" />
+    </bean>
+</beans>
