@@ -3,4 +3,4 @@ Freshcard
 
 Rethinking business cards.
 
-This is the Freshcard server backend code. The UI is available under https://github.com/BjoernKW/FreshcardUI
+This is the Freshcard server backend code. The UI is available at https://github.com/BjoernKW/FreshcardUI
